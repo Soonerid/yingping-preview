@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>正在打开映屏</title><style>body{margin:0;min-height:100dvh;display:grid;place-items:center;background:#f5f5f2;color:#333a2c;font:14px/1.8 system-ui,"Microsoft YaHei",sans-serif}main{text-align:center;padding:30px}b{display:inline-grid;place-items:center;width:54px;height:54px;border-radius:16px;background:#272a30;color:#d4f483;font-size:25px}h1{font-size:21px;margin:16px 0 7px}p{font-size:12px;color:#8c9384}a{color:#68843f}</style></head><body><main><b>映</b><h1>正在打开映屏</h1><p>正在准备页面与显示资源…</p><a href="/">直接打开</a></main><script>
+(async()=>{
+  try{
+    if('serviceWorker' in navigator){const entries=await navigator.serviceWorker.getRegistrations();await Promise.all(entries.filter(r=>r.scope===location.origin+'/').filter(r=>[r.active,r.waiting,r.installing].some(w=>w?.scriptURL===location.origin+'/sw.js')).map(r=>r.unregister()));}
+    if('caches' in window){const keys=await caches.keys();await Promise.all(keys.filter(k=>k.startsWith('gm-shell-')).map(k=>caches.delete(k)));}
+  }catch{}
+  location.replace('/?opened='+Date.now());
+})();
+</script></body></html>

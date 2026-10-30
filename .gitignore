@@ -1,0 +1,11 @@
+work/
+outputs/
+node_modules/
+__pycache__/
+*.pyc
+*.log
+.env
+.env.*
+*.zip
+*.exe
+.DS_Store

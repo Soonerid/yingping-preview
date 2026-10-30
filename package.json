@@ -1,0 +1,17 @@
+{
+  "name": "yingping-preview",
+  "version": "1.2.3",
+  "private": true,
+  "description": "映屏：本地网页、手机与折叠屏适配预览工具",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "test": "node tools/test.cjs",
+    "test:node": "node tools/test.cjs --node-only",
+    "test:web": "python -X utf8 -B tests/web_server.py",
+    "dev:web": "python -X utf8 -B start_preview.py",
+    "build:windows": "node desktop/build.cjs"
+  }
+}

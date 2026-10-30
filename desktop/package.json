@@ -1,0 +1,10 @@
+{
+  "name": "yingping-preview",
+  "productName": "映屏",
+  "version": "1.2.3",
+  "private": true,
+  "description": "手机与折叠屏网页预览台",
+  "main": "main.cjs",
+  "scripts": {"start": "electron .", "build": "node build.cjs"},
+  "devDependencies": {"@electron/packager": "20.3.0", "electron": "45.1.0"}
+}
