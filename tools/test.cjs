@@ -1,6 +1,6 @@
 const {spawnSync}=require('node:child_process'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
-for(const file of ['viewports.cjs','browser-modes.cjs','sharing.cjs','desktop-core.cjs','shell.cjs','local-html.cjs','adversarial.cjs']){
+for(const file of ['viewports.cjs','browser-modes.cjs','sharing.cjs','desktop-core.cjs','shell.cjs','system-chrome.cjs','local-html.cjs','adversarial.cjs']){
  const result=spawnSync(process.execPath,[path.join(root,'tests',file)],{cwd:root,stdio:'inherit'});if(result.status!==0)process.exit(result.status||1);
 }
 if(!process.argv.includes('--node-only')){

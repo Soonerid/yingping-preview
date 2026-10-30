@@ -15,6 +15,7 @@ if(!fs.existsSync(path.join(build,'node_modules','electron','dist','electron.exe
   const checksums=require(path.join(build,'node_modules','electron','checksums.json'));
   const locations=await packager({dir:build,out,name:'映屏',executableName:'映屏',platform:'win32',arch:'x64',electronVersion:'45.1.0',download:{checksums},icon:path.join(build,'public','preview.ico'),ignore:/(^|[\\/])node_modules([\\/]|$)/,asar:true,overwrite:true,prune:true});
   fs.copyFileSync(path.join(project,'交给师弟.md'),path.join(locations[0],'使用与开发说明.md'));
+  fs.copyFileSync(path.join(project,'对抗性审查.md'),path.join(locations[0],'对抗性审查.md'));
   for(const [source,target] of [['LICENSE','映屏-LICENSE.txt'],['THIRD_PARTY_NOTICES.md','THIRD_PARTY_NOTICES.md'],['Lucide-LICENSE.txt','Lucide-LICENSE.txt']])fs.copyFileSync(path.join(project,source),path.join(locations[0],target));
   fs.copyFileSync(path.join(__dirname,'创建桌面快捷方式.vbs'),path.join(locations[0],'创建桌面快捷方式.vbs'));
   console.log('DESKTOP_READY='+locations[0]);

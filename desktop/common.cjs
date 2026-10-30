@@ -6,12 +6,13 @@ function validUrl(raw){
   return url.href;
 }
 function geometry(data,host,zoom=1){
-  if(!data||![data.width,data.height,data.scale].every(Number.isFinite)||data.width<240||data.width>2560||data.height<240||data.height>2560)return null;
-  const r=data.rect,c=data.clip;
+  if(!data||![data.width,data.height,data.scale].every(Number.isFinite)||data.width<100||data.width>2560||data.height<100||data.height>2560)return null;
+  const r=data.rect,c=data.clip,content=data.contentRect||r;
   if(!r||!c||![r.x,r.y,r.width,r.height,c.x,c.y,c.width,c.height].every(Number.isFinite))return null;
+  if(!content||![content.x,content.y,content.width,content.height].every(Number.isFinite)||content.width<=0||content.height<=0||content.x<r.x-.1||content.y<r.y-.1||content.x+content.width>r.x+r.width+.1||content.y+content.height>r.y+r.height+.1)return null;
   const x=Math.max(0,Math.round(Math.max(r.x,c.x)*zoom)),y=Math.max(0,Math.round(Math.max(r.y,c.y)*zoom));
   const right=Math.min(host.width,Math.round(Math.min(r.x+r.width,c.x+c.width)*zoom)),bottom=Math.min(host.height,Math.round(Math.min(r.y+r.height,c.y+c.height)*zoom));
-  return {visible:Boolean(data.visible)&&right>x&&bottom>y,clip:{x,y,width:Math.max(0,right-x),height:Math.max(0,bottom-y)},view:{x:Math.round(r.x*zoom)-x,y:Math.round(r.y*zoom)-y,width:Math.max(1,Math.round(r.width*zoom)),height:Math.max(1,Math.round(r.height*zoom))},width:Math.round(data.width),height:Math.round(data.height),scale:Math.max(.1,Math.min(2,data.scale*zoom)),radius:Math.max(0,Math.min(60,Math.round((data.radius||0)*zoom)))};
+  return {visible:Boolean(data.visible)&&right>x&&bottom>y,clip:{x,y,width:Math.max(0,right-x),height:Math.max(0,bottom-y)},view:{x:Math.round(r.x*zoom)-x,y:Math.round(r.y*zoom)-y,width:Math.max(1,Math.round(r.width*zoom)),height:Math.max(1,Math.round(r.height*zoom))},content:{x:Math.round((content.x-r.x)*zoom),y:Math.round((content.y-r.y)*zoom),width:Math.max(1,Math.round(content.width*zoom)),height:Math.max(1,Math.round(content.height*zoom))},width:Math.round(data.width),height:Math.round(data.height),screenWidth:Number.isFinite(data.screenWidth)?Math.round(data.screenWidth):Math.round(data.width),screenHeight:Number.isFinite(data.screenHeight)?Math.round(data.screenHeight):Math.round(data.height),scale:Math.max(.1,Math.min(2,data.scale*zoom)),radius:Math.max(0,Math.min(60,Math.round((data.radius||0)*zoom)))};
 }
 function errorMessage(code,description=''){
   if(code===-102)return '目标服务没有启动或端口不对。请先启动网页项目，再检查地址。';

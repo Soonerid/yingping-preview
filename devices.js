@@ -29,6 +29,21 @@ window.DevicePreview=(()=>{
       return {name,side,position,length};
     });
   }
+  function systemChrome(device,fold,rotated=false,custom=null,mode='light'){
+    const size=screen(device,fold,rotated,custom),base=screen(device,fold,false,custom);
+    const family=device.brand==='Apple'?'ios':device.brand==='华为'?'harmony':device.id==='galaxys25'?'oneui':device.id==='honormagic7pro'?'magic':'android';
+    const enabled=device.id!=='custom'&&mode!=='none';
+    let top=0,left=0,right=0,barHeight=0,cutout=null;
+    if(enabled){
+      const apple=family==='ios',inner=device.id==='puraxmax'&&base.key==='open';
+      barHeight=apple?(rotated?0:62):32;top=barHeight;
+      const w=apple?116:family==='magic'?48:11,h=apple?34:family==='magic'?14:11;
+      let x=inner?base.width-25:base.width/2,y=apple?28:inner?21:19;
+      if(rotated){[x,y]=[y,base.width-x];if(!inner){left=apple?62:32;right=apple?62:0;}}
+      cutout={x,y,width:rotated?h:w,height:rotated?w:h,radius:apple?20:family==='magic'?9:6};
+    }
+    return {family,enabled,barHeight,clock:family==='ios'?'9:41':family==='harmony'?'08:08':'10:08',insets:{top,left,right,bottom:0},content:{width:size.width-left-right,height:size.height-top},cutout};
+  }
   function normalize(input,base){
     let value=String(input||'').trim();const markdown=value.match(/^\[[^\]]*\]\((https?:\/\/[^\s)]+)\)$/i);if(markdown)value=markdown[1];
     if(!value)throw new Error('先输入一个预览地址。');
@@ -59,15 +74,16 @@ window.DevicePreview=(()=>{
     const fold=device.screens[p.get('fold')]?p.get('fold'):device.screens.open?'open':Object.keys(device.screens)[0];
     const width=Number(p.get('w')),height=Number(p.get('h')),custom=Number.isInteger(width)&&Number.isInteger(height)&&width>=240&&height>=240&&width<=2560&&height<=2560?[width,height]:null;
     const mode=['auto','embed','window'].includes(p.get('mode'))?p.get('mode'):'auto',zoom=['fit','1','0.75','0.5'].includes(p.get('zoom'))?p.get('zoom'):'fit';
-    return {device,fold,custom,mode,zoom,rotated:p.get('rotate')==='1',target:p.has('url')?normalize(p.get('url'),base):null};
+    const chrome=['light','dark','none'].includes(p.get('chrome'))?p.get('chrome'):'light';
+    return {device,fold,custom,mode,zoom,chrome,rotated:p.get('rotate')==='1',target:p.has('url')?normalize(p.get('url'),base):null};
   }
-  function shareLink({base,current,target,device,fold,rotated,custom,mode,zoom,rewriteLocal=false}){
+  function shareLink({base,current,target,device,fold,rotated,custom,mode,zoom,chrome='light',rewriteLocal=false}){
     const origin=new URL(base),source=new URL(current),url=new URL(normalize(target,current));
     if(!['http:','https:'].includes(origin.protocol)||origin.username||origin.password||loopback(origin.hostname))throw new Error('预览台尚未向局域网开放，请使用“局域网共享启动.cmd”启动。');
     if(url.origin===source.origin)url.host=origin.host;
     else if(loopback(url.hostname)){if(!rewriteLocal)throw new Error('目标网页还使用 localhost。请先把目标项目向局域网开放，再勾选地址替换。');url.hostname=origin.hostname;}
-    const p=new URLSearchParams({url:url.href,device,fold,mode,zoom});if(rotated)p.set('rotate','1');if(custom){p.set('w',custom[0]);p.set('h',custom[1]);}
+    const p=new URLSearchParams({url:url.href,device,fold,mode,zoom,chrome});if(rotated)p.set('rotate','1');if(custom){p.set('w',custom[0]);p.set('h',custom[1]);}
     origin.pathname='/';origin.search='';origin.hash=p.toString();return origin.href;
   }
-  return {devices,screen,fit,hardware,normalize,route,popupFeatures,loopback,preset,shareLink};
+  return {devices,screen,fit,hardware,systemChrome,normalize,route,popupFeatures,loopback,preset,shareLink};
 })();

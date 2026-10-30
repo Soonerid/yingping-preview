@@ -27,7 +27,7 @@ async function report(){
 function layout(data){
   const g=geometry(data,win.getContentBounds(),win.webContents.getZoomFactor());if(!g)return;
   const key=JSON.stringify(g);if(key===lastGeometry)return;lastGeometry=key;
-  clip.setBounds(g.clip);clip.setVisible(g.visible);screenSurface.setBounds(g.view);screenSurface.setBorderRadius(g.radius);view.setBounds({x:0,y:0,width:g.view.width,height:g.view.height});view.setBorderRadius(g.radius);
+  clip.setBounds(g.clip);clip.setVisible(g.visible);screenSurface.setBounds(g.view);screenSurface.setBorderRadius(g.radius);view.setBounds(g.content);view.setBorderRadius(0);
   currentGeometry=g;if(pageReady)emulate();
   clearTimeout(metricsTimer);metricsTimer=setTimeout(report,180);
 }
@@ -36,7 +36,7 @@ function emulate(){
   try{
     if(!contents.debugger.isAttached())contents.debugger.attach('1.3');
     // The metrics command also enables mobile viewport-meta handling and overlay scrollbars.
-    contents.debugger.sendCommand('Emulation.setDeviceMetricsOverride',{width:g.width,height:g.height,deviceScaleFactor:1,mobile:true,scale:g.scale,screenWidth:g.width,screenHeight:g.height,dontSetVisibleSize:true,screenOrientation:{type:g.width>g.height?'landscapePrimary':'portraitPrimary',angle:g.width>g.height?90:0}}).then(()=>{if(contents===view.webContents){view.setBorderRadius(g.radius);report();}}).catch(()=>{if(contents===view.webContents)send({type:'error',message:'屏幕尺寸未能应用，请重新加载预览。'});});
+    contents.debugger.sendCommand('Emulation.setDeviceMetricsOverride',{width:g.width,height:g.height,deviceScaleFactor:1,mobile:true,scale:g.scale,screenWidth:g.screenWidth,screenHeight:g.screenHeight,dontSetVisibleSize:true,screenOrientation:{type:g.width>g.height?'landscapePrimary':'portraitPrimary',angle:g.width>g.height?90:0}}).then(()=>{if(contents===view.webContents){view.setBorderRadius(0);report();}}).catch(()=>{if(contents===view.webContents)send({type:'error',message:'屏幕尺寸未能应用，请重新加载预览。'});});
   }catch{send({type:'error',message:'屏幕预览暂不可用，请关闭调试窗口后重新加载。'});}
 }
 function configureContents(contents){
@@ -50,7 +50,7 @@ function createWebView(isLocal){
   configureContents(contents);const active=()=>view?.webContents===contents;
   contents.on('did-navigate',(_event,_url,code)=>{if(active()){lastCode=code;send({type:'navigation',...navigation()});}});
   contents.on('did-navigate-in-page',()=>{if(active())send({type:'navigation',...navigation()});});
-  contents.on('did-finish-load',()=>{if(active()){pageReady=true;emulate();if(currentGeometry)view.setBorderRadius(currentGeometry.radius);report();}});
+  contents.on('did-finish-load',()=>{if(active()){pageReady=true;emulate();if(currentGeometry)view.setBorderRadius(0);report();}});
   contents.on('did-stop-loading',()=>{if(active())report();});
   contents.on('devtools-closed',()=>{if(active()&&pageReady)emulate();});
   contents.on('did-start-navigation',details=>{if(active()&&details.isMainFrame&&!details.isInPlace){failed=false;pageReady=false;}});
@@ -62,7 +62,7 @@ function load(url){
   const isLocal=Boolean(local.describe(checked));
   if(isLocal!==localView){
     const previous=view;screenSurface.removeChildView(previous);view=createWebView(isLocal);localView=isLocal;screenSurface.addChildView(view);previous.webContents.close();
-    if(currentGeometry){view.setBounds({x:0,y:0,width:currentGeometry.view.width,height:currentGeometry.view.height});view.setBorderRadius(currentGeometry.radius);}
+    if(currentGeometry){view.setBounds(currentGeometry.content);view.setBorderRadius(0);}
   }
   const contents=view.webContents;return contents.loadURL(checked).catch(error=>{if(contents===view.webContents&&error.code!=='ERR_ABORTED'){failed=true;clip.setVisible(false);send({type:'error',message:errorMessage(error.errno||-2,error.code||error.message)});}});
 }
