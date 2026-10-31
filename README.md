@@ -4,6 +4,8 @@
 
 ## 直接给同学使用
 
+第一次使用，先看 [简明上手指南](快速上手.md)。
+
 1. 在 [最新正式版](https://github.com/Soonerid/yingping-preview/releases/latest) 下载 `yingping-windows-x64.zip`。
 2. **完整解压**到一个文件夹，双击 `映屏.exe`。不要只拿走 exe。
 3. 输入开发服务器地址，或点「本地 HTML」选择网页、拖入 HTML、粘贴代码。
